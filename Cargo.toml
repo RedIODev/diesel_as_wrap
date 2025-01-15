@@ -8,7 +8,7 @@ repository = "https://github.com/RedIODev/diesel_as_wrap"
 description = "A crate helping to wrap types to support (de)serialization using diesel."
 license = "GPL-3.0"
 keywords = ["diesel", "wrapper", "macro", "serialization", "deserialization"]
-categories = ["rust-patterns", "encoding", "development-tools::declarative-macro-helpers"]
+categories = ["rust-patterns", "encoding"]
 [dependencies]
 diesel = "2.2.6"
 
