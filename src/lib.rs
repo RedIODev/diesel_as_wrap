@@ -14,12 +14,12 @@
 ///     target = $type_to_wrap$;
 ///     sql_type = $type_represented_as_sql$;
 ///     $module_visability$ mod $name_of_wrappers_module$;
-///     fn to_sql<$parsing_type$>(self, out){
+///     fn to_sql<[for<'a,'b,...>] $parsing_type$>(self, out){
 ///         ...
 ///         let foo: &$parsing_type$ = ...;
 ///         foo.to_sql(out)
 ///     }
-///     fn from_sql<$parsing_type$>(bytes){
+///     fn from_sql<[for<'a,'b,...>] $parsing_type$>(bytes){
 ///         let value = <$parsing_type$>::from_sql(bytes)?;
 ///         ...
 ///     }
@@ -29,6 +29,7 @@
 /// - type_to_wrap is the type you like to wrap (Needs to be fully qualified).
 /// - type_represented_as_sql is the sql type your type should be represented as.
 /// - name_of_wrappers_module is the module created by this macro containing the wrappers.
+/// - [for<'a,'b,...] is an optional list of lifetime specifiers for the parsing type.
 /// - parsing_type is the type that can already be parsed by diesel and is closest to your type. 
 /// It is used to deserialise the raw bytes from diesel and is used to return the bytes when serializing.
 /// 
@@ -38,11 +39,11 @@
 ///     target = uuid::Uuid;
 ///     sql_type = Binary;
 ///     pub mod uuid_wrap;
-///     fn to_sql<[u8]>(self, out){
+///     fn to_sql<[for<'a,'b,...>] [u8]>(self, out){
 ///         let bytes: &[u8] = self.0.as_bytes();
 ///         bytes.to_sql(out)
 ///     }
-///     fn from_sql<Vec<u8>>(bytes){
+///     fn from_sql<[for<'a,'b,...>] Vec<u8>>(bytes){
 ///         let value = <Vec<u8>>::from_sql(bytes)?;
 ///         uuid::Uuid::from_slice(&value)
 ///             .map(As)
@@ -65,7 +66,7 @@
 /// 
 #[macro_export]
 macro_rules! wrap {
-    (target = $target:ty; sql_type = $sql_type:ty; $visablity:vis mod $name:ident; fn to_sql<$to_intermediate:ty>($self:ident, $out:ident)$to:block fn from_sql<$from_intermediate:ty>($bytes:ident)$from:block) => {
+    (target = $target:ty; sql_type = $sql_type:ty; $visablity:vis mod $name:ident; fn to_sql<$(for<$($to_lifetimes:lifetime),+>)? $to_intermediate:ty>($self:ident, $out:ident)$to:block fn from_sql<$(for<$($from_lifetimes:lifetime),+>)? $from_intermediate:ty>($bytes:ident)$from:block) => {
 
         $visablity mod $name {
 
@@ -108,7 +109,7 @@ macro_rules! wrap {
             impl<B> ToSql<$sql_type, B> for As
             where
                 B: Backend,
-                $to_intermediate: ToSql<$sql_type, B>,
+                $to_intermediate: for<to_lifetimes> ToSql<$sql_type, B>,
             {
                 fn to_sql<'b>(&'b $self, $out: &mut Output<'b, '_, B>) -> SResult $to
             }
