@@ -159,19 +159,19 @@ macro_rules! wrap {
 }
 
 
-wrap! {
-    target = u32;
-    sql_type = Int4;
-    pub mod u32;
-    fn to_sql<u32 where 'a, 'b>(self, out) {
-        self.0.to_sql(out)
-    }
+// wrap! {
+//     target = u32;
+//     sql_type = Int4;
+//     pub mod u32;
+//     fn to_sql<u32 where 'a, 'b>(self, out) {
+//         self.0.to_sql(out)
+//     }
 
-    fn from_sql<i32>(bytes) {
-        let integer = i32::from_sql(bytes)?;
-        u32::try_from(integer)
-            .map(As)
-            .map_err(Into::into)
-    }
+//     fn from_sql<i32>(bytes) {
+//         let integer = i32::from_sql(bytes)?;
+//         u32::try_from(integer)
+//             .map(As)
+//             .map_err(Into::into)
+//     }
 
-}
+// }
